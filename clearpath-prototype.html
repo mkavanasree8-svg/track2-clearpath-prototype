@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClearPath Prototype Mockup - Scholarship App</title>
+<style>
+:root{--bg:#f4f7f9;--card:#fff;--text:#1f2933;--muted:#64748b;--border:#dde3ea;--brand:#0056b3;--brand-soft:#e8f1fb;--ok-bg:#d4edda;--ok:#155724;--warn-bg:#fff3cd;--warn:#856404;--bad-bg:#f8d7da;--bad:#721c24}
+@media (prefers-color-scheme:dark){:root{--bg:#10161d;--card:#18212b;--text:#e6edf3;--muted:#93a1b0;--border:#2b3846;--brand:#5aa9ff;--brand-soft:#16293d;--ok-bg:#16351f;--ok:#9be3ae;--warn-bg:#3b3112;--warn:#f1d27a;--bad-bg:#40191d;--bad:#f3a6ad}}
+*{box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);margin:0;padding:20px}
+.container{max-width:800px;margin:0 auto;background:var(--card);padding:30px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
+h1{color:var(--brand);text-align:center;margin:0 0 4px;font-size:1.8em}
+h2{margin:0 0 6px;font-size:1.25em}
+.tag{text-align:center;color:var(--muted);margin:0 0 22px}
+p.sub{color:var(--muted);margin:0 0 18px}
+
+/* Stepper */
+.stepper{display:flex;list-style:none;padding:0;margin:0 0 24px;gap:6px}
+.stepper li{flex:1;text-align:center;font-size:.8em;color:var(--muted);padding-top:10px;border-top:4px solid var(--border)}
+.stepper li.done{border-color:var(--brand);color:var(--text)}
+.stepper li.now{border-color:var(--brand);color:var(--brand);font-weight:700}
+
+/* Steps */
+.step{border:1px solid var(--border);padding:25px;margin-bottom:20px;border-radius:8px;transition:all .3s ease;display:none}
+.step.active{display:block;box-shadow:0 4px 15px rgba(0,86,179,.1);border-color:var(--brand)}
+
+/* Scheme picker */
+.scheme{display:block;width:100%;text-align:left;font:inherit;color:inherit;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:10px;cursor:pointer}
+.scheme:hover{border-color:var(--brand)}
+.scheme.sel{border-color:var(--brand);background:var(--brand-soft);box-shadow:inset 0 0 0 1px var(--brand)}
+.scheme b{display:block}
+.scheme span{color:var(--muted);font-size:.9em}
+.scheme em{float:right;font-style:normal;color:var(--brand);font-weight:700}
+
+/* Task cards */
+.task-card{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:15px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.task-card + .task-card{border-top:none}
+.task-card:last-of-type{border-bottom:none}
+.task-info{flex:1 1 320px}
+.task-info b{font-size:1.02em}
+.task-info small{display:block;color:var(--muted);margin-top:4px}
+.task-actions{display:flex;gap:8px;align-items:center}
+
+/* Badges & risk indicators */
+.badge{padding:4px 10px;border-radius:4px;font-weight:bold;font-size:.9em;display:inline-block;margin-left:10px}
+.risk-low{background-color:var(--ok-bg);color:var(--ok)}
+.risk-medium{background-color:var(--warn-bg);color:var(--warn)}
+.risk-high{background-color:var(--bad-bg);color:var(--bad)}
+.status{font-size:.85em;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid var(--border);color:var(--muted)}
+.status.allowed{background:var(--ok-bg);color:var(--ok);border-color:transparent}
+.status.skipped{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+.status.manual{background:var(--brand-soft);color:var(--brand);border-color:transparent}
+
+/* Buttons */
+button{font:inherit;cursor:pointer}
+.btn{padding:9px 18px;border-radius:6px;border:1px solid var(--brand);background:var(--brand);color:#fff;font-weight:600}
+.btn.ghost{background:transparent;color:var(--brand)}
+.btn.sm{padding:6px 12px;font-size:.9em}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.nav{display:flex;justify-content:space-between;margin-top:22px}
+
+/* Fake browser */
+.browser{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:16px 0}
+.bar{display:flex;align-items:center;gap:6px;background:var(--bg);padding:8px 12px;border-bottom:1px solid var(--border)}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--border)}
+.url{flex:1;margin-left:8px;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:4px 12px;font-size:.82em;color:var(--muted)}
+.form{padding:6px 18px 18px}
+.field{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--border)}
+.field:last-of-type{border-bottom:none}
+.field label{font-weight:600}
+.val{padding:5px 10px;border-radius:6px;font-size:.92em}
+.val.filled{background:var(--ok-bg);color:var(--ok)}
+.val.empty{border:1px dashed var(--muted);color:var(--muted)}
+.stop{background:var(--warn-bg);color:var(--warn);border-left:4px solid var(--warn);padding:12px 14px;border-radius:6px;font-size:.93em}
+
+/* Receipt */
+.receipt{border:1px dashed var(--muted);border-radius:8px;padding:18px;background:var(--bg)}
+.receipt h3{margin:16px 0 6px;font-size:.95em;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.receipt h3:first-of-type{margin-top:0}
+.receipt ul{margin:0;padding-left:20px}
+.receipt li{margin:4px 0}
+.meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.85em;color:var(--muted);margin-bottom:14px}
+.foot{text-align:center;color:var(--muted);font-size:.8em;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>ClearPath</h1>
+  <p class="tag">Your consent-gated co-pilot for scholarships and government schemes</p>
+  <ol class="stepper" id="stepper"></ol>
+
+  <!-- STEP 1 -->
+  <section class="step active" id="step1">
+    <h2>1. Choose a scheme</h2>
+    <p class="sub">Pick the scholarship you want to apply for. ClearPath will prepare the application. You stay in control.</p>
+    <div id="schemes"></div>
+    <div class="nav"><span></span><button class="btn" id="to2" disabled>Continue</button></div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="step" id="step2">
+    <h2>2. Review what ClearPath wants to do</h2>
+    <p class="sub">Each task shows its risk level. Nothing happens until you allow it.</p>
+    <div id="tasks"></div>
+    <div class="nav"><button class="btn ghost" data-go="1">Back</button><button class="btn" id="to3" disabled>Prepare my application</button></div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="step" id="step3">
+    <h2>3. Check the prepared form</h2>
+    <p class="sub" id="formSub"></p>
+    <div class="browser">
+      <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">scholarship-portal.example/apply</span></div>
+      <div class="form" id="form"></div>
+    </div>
+    <div class="stop"><b>ClearPath has stopped here.</b> Nothing is sent to the portal until you press Submit yourself.</div>
+    <div class="nav"><button class="btn ghost" data-go="2">Back</button><button class="btn" id="submit">Submit application</button></div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="step" id="step4">
+    <h2>4. Your Privacy Receipt</h2>
+    <p class="sub">A plain record of what ClearPath touched during this session.</p>
+    <div class="receipt" id="receipt"></div>
+    <div class="nav"><button class="btn ghost" id="restart">Start over</button><button class="btn" onclick="window.print()">Save or print receipt</button></div>
+  </section>
+
+  <p class="foot">Prototype mockup. Schemes, amounts and student data shown are sample data only.</p>
+</div>
+
+<script>
+const labels = ["Choose scheme", "Review tasks", "Check and submit", "Privacy Receipt"];
+const schemes = [
+  {id: "merit", name: "Merit-cum-Means Scholarship", amt: "₹20,000 / year", due: "Due 31 Dec", note: "For students with strong marks and a family income below the limit"},
+  {id: "tech",  name: "Technical Education Scholarship", amt: "₹30,000 / year", due: "Due 15 Jan", note: "For engineering and diploma students"},
+  {id: "first", name: "First-Generation Learner Grant", amt: "₹10,000 / year", due: "Due 20 Jan", note: "For the first graduate in a family"}
+];
+const tasks = [
+  {id: "profile", title: "Fill personal and course details", reads: "Reads: your saved student profile", risk: "low", manual: false, field: "Personal and course details", filled: "Student Name · B.E. Computer Science"},
+  {id: "income",  title: "Attach income certificate", reads: "Reads: one PDF that you pick from your Documents", risk: "medium", manual: false, field: "Income certificate", filled: "income_certificate.pdf attached"},
+  {id: "bank",    title: "Fill bank account details", reads: "Reads: account number and IFSC from your saved bank profile", risk: "high", manual: false, field: "Bank account", filled: "A/C ending 1234 · IFSC filled"},
+  {id: "otp",     title: "Aadhaar OTP verification", reads: "Reads: nothing. ClearPath never sees your OTP", risk: "high", manual: true, field: "Aadhaar OTP", filled: ""}
+];
+const riskText = {low: "Low risk", medium: "Medium risk", high: "High risk"};
+const state = {step: 1, scheme: null, dec: {otp: "manual"}, id: null, time: null};
+const $ = id => document.getElementById(id);
+
+function show(n) {
+  state.step = n;
+  document.querySelectorAll(".step").forEach((s, i) => s.classList.toggle("active", i + 1 === n));
+  $("stepper").innerHTML = labels.map((l, i) =>
+    `<li class="${i + 1 < n ? "done" : i + 1 === n ? "now" : ""}">${i + 1}. ${l}</li>`).join("");
+  if (n === 3) renderForm();
+  if (n === 4) renderReceipt();
+  window.scrollTo({top: 0, behavior: "smooth"});
+}
+
+function renderSchemes() {
+  $("schemes").innerHTML = schemes.map(s => `
+    <button class="scheme ${state.scheme === s.id ? "sel" : ""}" data-scheme="${s.id}">
+      <em>${s.amt}</em><b>${s.name}</b><span>${s.note} · ${s.due}</span>
+    </button>`).join("");
+  $("to2").disabled = !state.scheme;
+}
+
+function renderTasks() {
+  $("tasks").innerHTML = tasks.map(t => {
+    const d = state.dec[t.id];
+    const status = t.manual ? `<span class="status manual">You do this step</span>`
+      : d === "allowed" ? `<span class="status allowed">Allowed once</span>`
+      : d === "skipped" ? `<span class="status skipped">Skipped</span>`
+      : `<span class="status">Waiting for you</span>`;
+    const actions = t.manual ? "" : `
+      <button class="btn sm ${d === "allowed" ? "" : "ghost"}" data-dec="allowed" data-task="${t.id}">Allow once</button>
+      <button class="btn sm ghost" data-dec="skipped" data-task="${t.id}">Skip</button>`;
+    return `<div class="task-card">
+      <div class="task-info"><b>${t.title}</b><span class="badge risk-${t.risk}">${riskText[t.risk]}</span><small>${t.reads}</small></div>
+      <div class="task-actions">${status}${actions}</div></div>`;
+  }).join("");
+  $("to3").disabled = !tasks.every(t => state.dec[t.id]);
+}
+
+function renderForm() {
+  const s = schemes.find(x => x.id === state.scheme);
+  $("formSub").textContent = `Application for ${s.name}. Green fields were prepared by ClearPath with your permission.`;
+  $("form").innerHTML = tasks.map(t => {
+    const ok = state.dec[t.id] === "allowed";
+    const val = t.manual ? "You will enter the OTP here" : ok ? t.filled : "Empty. Waiting for you";
+    return `<div class="field"><label>${t.field}</label><span class="val ${ok ? "filled" : "empty"}">${val}</span></div>`;
+  }).join("");
+}
+
+function renderReceipt() {
+  const s = schemes.find(x => x.id === state.scheme);
+  const allowed = tasks.filter(t => state.dec[t.id] === "allowed");
+  const notDone = tasks.filter(t => state.dec[t.id] !== "allowed");
+  const li = arr => arr.length ? arr.map(x => `<li>${x}</li>`).join("") : "<li>Nothing</li>";
+  $("receipt").innerHTML = `
+    <div class="meta"><span>Receipt ${state.id}</span><span>${state.time}</span></div>
+    <h3>Scheme</h3><ul><li>${s.name}</li></ul>
+    <h3>What ClearPath accessed, with your permission</h3>
+    <ul>${li(allowed.map(t => `${t.field} (${t.reads.replace("Reads: ", "")})`))}</ul>
+    <h3>What ClearPath did not touch</h3>
+    <ul>${li(notDone.map(t => t.manual ? `${t.field}. Done by you` : `${t.field}. You skipped this`))}</ul>
+    <h3>Final submit</h3><ul><li>Pressed by you, not by ClearPath</li></ul>
+    <h3>Kept by ClearPath after this session</h3><ul><li>Nothing</li></ul>`;
+}
+
+document.addEventListener("click", e => {
+  const sc = e.target.closest("[data-scheme]");
+  if (sc) { state.scheme = sc.dataset.scheme; renderSchemes(); return; }
+  const dec = e.target.closest("[data-dec]");
+  if (dec) { state.dec[dec.dataset.task] = dec.dataset.dec; renderTasks(); return; }
+  const go = e.target.closest("[data-go]");
+  if (go) show(+go.dataset.go);
+});
+$("to2").onclick = () => { renderTasks(); show(2); };
+$("to3").onclick = () => show(3);
+$("submit").onclick = () => {
+  state.id = "CP-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+  state.time = new Date().toLocaleString("en-IN");
+  show(4);
+};
+$("restart").onclick = () => { state.scheme = null; state.dec = {otp: "manual"}; renderSchemes(); show(1); };
+
+renderSchemes();
+show(1);
+</script>
+</body>
+</html>
